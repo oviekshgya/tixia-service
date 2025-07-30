@@ -18,7 +18,7 @@ var (
 	consumerID  = "provider-1"
 
 	rdb = redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr: "localhost:6379",
 	})
 )
 

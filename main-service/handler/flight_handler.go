@@ -63,6 +63,7 @@ func HandleSearchRequest(c *fiber.Ctx) error {
 
 	// Prepare SSE channel
 	sseClients[searchID] = make(chan string, 10)
+	log.Println("[SSE INIT] Registered search_id:", searchID)
 
 	return c.JSON(fiber.Map{
 		"success": true,
@@ -78,6 +79,7 @@ func StreamSearchResults(c *fiber.Ctx) error {
 	searchID := c.Params("search_id")
 	ch, ok := sseClients[searchID]
 	if !ok {
+		log.Println("[SSE ERROR] search_id not found in sseClients:", searchID)
 		return c.Status(404).SendString("search_id not found or expired")
 	}
 
@@ -126,14 +128,16 @@ func ListenFlightResults() {
 
 				jsonData, _ := json.Marshal(data)
 				searchID := fmt.Sprintf("%v", data["search_id"])
+				log.Println("[SSE SEND] Sending result for:", searchID)
 
 				if ch, ok := sseClients[searchID]; ok {
 					ch <- string(jsonData)
 
 					// Close SSE channel when complete
 					if status := fmt.Sprintf("%v", data["status"]); status == "completed" {
+						time.Sleep(50 * time.Second)
 						close(ch)
-						delete(sseClients, searchID)
+						//delete(sseClients, searchID)
 					}
 				}
 

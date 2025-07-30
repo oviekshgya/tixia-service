@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	Rdb                   = redis.NewClient(&redis.Options{Addr: "redis:6379"})
+	Rdb                   = redis.NewClient(&redis.Options{Addr: "localhost:6379"})
 	Ctx                   = context.Background()
 	SearchRequestedStream = "flight.search.requested"
 )
