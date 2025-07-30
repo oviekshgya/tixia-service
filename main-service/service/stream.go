@@ -13,7 +13,6 @@ var (
 	SearchRequestedStream = "flight.search.requested"
 )
 
-// PublishSearchRequest publishes flight search data to Redis stream
 func PublishSearchRequest(values map[string]interface{}) error {
 	_, err := Rdb.XAdd(Ctx, &redis.XAddArgs{
 		Stream: SearchRequestedStream,

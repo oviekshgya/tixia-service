@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// FlightResult represents a dummy flight result
 type FlightResult struct {
 	FlightNumber string  `json:"flight_number"`
 	Airline      string  `json:"airline"`
@@ -17,10 +16,9 @@ type FlightResult struct {
 	Price        float64 `json:"price"`
 }
 
-// MockSearchFlights simulates a 3rd-party flight API call
 func MockSearchFlights(from, to, date string) []FlightResult {
 	rand.Seed(time.Now().UnixNano())
-	time.Sleep(1 * time.Second) // Simulate latency
+	time.Sleep(1 * time.Second)
 
 	airlines := []string{"Garuda Indonesia", "Lion Air", "AirAsia", "Citilink"}
 	results := make([]FlightResult, 0)
@@ -45,7 +43,6 @@ func MockSearchFlights(from, to, date string) []FlightResult {
 	return results
 }
 
-// randomTime returns a random time between 06:00–18:00 on the current day
 func randomTime() time.Time {
 	hour := rand.Intn(12) + 6 // 6–17
 	min := rand.Intn(60)

@@ -114,7 +114,6 @@ func ListenFlightResults() {
 	group := "main-service-group"
 	consumer := "consumer-1"
 
-	// Create consumer group (ignore error if already exists)
 	_ = rdb.XGroupCreateMkStream(ctx, resultStream, group, "0")
 
 	for {
@@ -138,6 +137,12 @@ func ListenFlightResults() {
 					data[k] = v
 				}
 
+				if rawResults, ok := data["results"].(string); ok {
+					var parsed []interface{}
+					_ = json.Unmarshal([]byte(rawResults), &parsed)
+					data["results"] = parsed
+				}
+
 				jsonData, _ := json.Marshal(data)
 				searchID := fmt.Sprintf("%v", data["search_id"])
 				log.Println("[SSE SEND] Sending result for:", searchID)
@@ -145,7 +150,6 @@ func ListenFlightResults() {
 				if ch, ok := sseClients[searchID]; ok {
 					ch <- string(jsonData)
 
-					// Close SSE channel when complete
 					if status := fmt.Sprintf("%v", data["status"]); status == "completed" {
 						time.Sleep(50 * time.Second)
 						close(ch)
@@ -153,7 +157,6 @@ func ListenFlightResults() {
 					}
 				}
 
-				// Acknowledge message
 				_ = rdb.XAck(ctx, resultStream, group, msg.ID)
 			}
 		}

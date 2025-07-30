@@ -31,7 +31,6 @@ var (
 	})
 )
 
-// StartFlightSearchConsumer runs a Redis Stream consumer loop
 func StartFlightSearchConsumer() {
 	_ = rdb.XGroupCreateMkStream(ctx, streamKey, consumerGrp, "0")
 
@@ -57,16 +56,11 @@ func StartFlightSearchConsumer() {
 	}
 }
 
-// =====================
-// Handle individual message
-// =====================
 func handleMessage(msg redis.XMessage) {
 	defer func() {
-		// Acknowledge message after handling
 		_ = rdb.XAck(ctx, streamKey, consumerGrp, msg.ID)
 	}()
 
-	// Parse message values
 	data := make(map[string]interface{})
 	for k, v := range msg.Values {
 		data[k] = v
@@ -76,22 +70,13 @@ func handleMessage(msg redis.XMessage) {
 	from, _ := data["from"].(string)
 	to, _ := data["to"].(string)
 	date, _ := data["date"].(string)
-	passengers, _ := data["passengers"].(string) // redis stores all values as strings
+	passengers, _ := data["passengers"].(string)
 
 	log.Printf("Processing search: %s → %s on %s (%spax)\n", from, to, date, passengers)
 
-	// Simulate calling external API (mock)
 	results := mockapi.MockSearchFlights(from, to, date)
 
-	// Prepare result payload
-	resultData := map[string]interface{}{
-		"search_id": searchID,
-		"status":    "completed",
-		"results":   results,
-	}
-
-	// Convert slice to JSON string to store as Redis Stream value
-	resultJSON, _ := json.Marshal(resultData)
+	resultJSON, _ := json.Marshal(results)
 
 	_, err := rdb.XAdd(ctx, &redis.XAddArgs{
 		Stream: resultKey,

@@ -12,7 +12,7 @@ func main() {
 	api.Post("/search", handler.HandleSearchRequest)
 	api.Get("/search/:search_id/stream", handler.StreamSearchResults)
 
-	go handler.ListenFlightResults() // Listen Redis Stream in background
+	go handler.ListenFlightResults()
 
 	app.Listen(":8880")
 }

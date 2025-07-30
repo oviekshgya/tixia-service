@@ -9,14 +9,12 @@ import (
 var sseClients = make(map[string]chan string)
 var mu sync.RWMutex
 
-// RegisterSSE creates a channel for a given search_id
 func RegisterSSE(searchID string) {
 	mu.Lock()
 	defer mu.Unlock()
 	sseClients[searchID] = make(chan string, 10)
 }
 
-// GetSSEChannel retrieves channel for given search_id
 func GetSSEChannel(searchID string) (chan string, bool) {
 	mu.RLock()
 	defer mu.RUnlock()
@@ -24,7 +22,6 @@ func GetSSEChannel(searchID string) (chan string, bool) {
 	return ch, ok
 }
 
-// RemoveSSE cleans up the channel
 func RemoveSSE(searchID string) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -34,7 +31,6 @@ func RemoveSSE(searchID string) {
 	}
 }
 
-// WriteSSE writes data to bufio.Writer for streaming
 func WriteSSE(w *bufio.Writer, ch chan string) {
 	for msg := range ch {
 		fmt.Fprintf(w, "data: %s\n\n", msg)
