@@ -1,18 +1,31 @@
 version: "3.9"
+
 services:
   redis:
     image: redis:7
+    container_name: redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
 
   main-service:
     build: ./main-service
+    container_name: main-service
     ports:
       - "8080:8080"
     depends_on:
       - redis
+    env_file:
+      - .env
 
   provider-service:
     build: ./provider-service
+    container_name: provider-service
     depends_on:
       - redis
+    env_file:
+      - .env
+
+volumes:
+  redis_data:

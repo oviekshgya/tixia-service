@@ -4,11 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"os"
 	"time"
 	"tixia-service/provider-service/mockapi"
 
 	"github.com/redis/go-redis/v9"
 )
+
+func getEnv(key, fallback string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		return fallback
+	}
+	return val
+}
 
 var (
 	ctx         = context.Background()
@@ -18,7 +27,7 @@ var (
 	consumerID  = "provider-1"
 
 	rdb = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: getEnv("REDIS_ADDR", "localhost:6379"),
 	})
 )
 

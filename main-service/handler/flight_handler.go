@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"time"
 	"tixia-service/main-service/service"
 
@@ -14,8 +15,19 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+func getEnv(key, fallback string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		return fallback
+	}
+	return val
+}
+
 var (
-	rdb          = redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	//rdb          = redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	rdb = redis.NewClient(&redis.Options{
+		Addr: getEnv("REDIS_ADDR", "localhost:6379"),
+	})
 	ctx          = context.Background()
 	streamName   = "flight.search.requested"
 	resultStream = "flight.search.results"
